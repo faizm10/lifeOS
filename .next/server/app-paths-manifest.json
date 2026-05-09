@@ -1,3 +1,14 @@
 {
-  "/page": "app/page.js"
+  "/_not-found/page": "app/_not-found/page.js",
+  "/login/page": "app/login/page.js",
+  "/(app)/journal/page": "app/(app)/journal/page.js",
+  "/api/auth/[...all]/route": "app/api/auth/[...all]/route.js",
+  "/(app)/goals/page": "app/(app)/goals/page.js",
+  "/(app)/transactions/page": "app/(app)/transactions/page.js",
+  "/(app)/bills/page": "app/(app)/bills/page.js",
+  "/(app)/page": "app/(app)/page.js",
+  "/(app)/wishlist/page": "app/(app)/wishlist/page.js",
+  "/(app)/sports/page": "app/(app)/sports/page.js",
+  "/(app)/media/page": "app/(app)/media/page.js",
+  "/(app)/wins/page": "app/(app)/wins/page.js"
 }
