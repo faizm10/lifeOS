@@ -4,11 +4,13 @@ export function middleware(request: NextRequest) {
   const session = request.cookies.get("better-auth.session_token");
   const { pathname } = request.nextUrl;
 
-  if (!session && pathname !== "/login") {
+  const isAuthPage = pathname === "/login" || pathname === "/signup";
+
+  if (!session && !isAuthPage) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (session && pathname === "/login") {
+  if (session && isAuthPage) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
