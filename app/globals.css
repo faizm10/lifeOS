@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap");
+
+:root {
+  /* Accent — overridden at runtime via the Tweaks panel. Default: oxblood. */
+  --accent: oklch(0.46 0.16 28);
+  --accent-soft: oklch(0.46 0.16 28 / 0.10);
+  --accent-fg: oklch(0.98 0.005 70);
+}
+
+@layer base {
+  html, body { height: 100%; }
+  body {
+    @apply bg-paper text-ink font-sans;
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(oklch(0.84 0.030 75 / 0.15) 1px, transparent 1px),
+      radial-gradient(oklch(0.84 0.030 75 / 0.10) 1px, transparent 1px);
+    background-size: 7px 7px, 11px 11px;
+    background-position: 0 0, 3px 4px;
+  }
+}
+
+@layer components {
+  /* Reusable almanac primitives */
+  .label-mono {
+    @apply font-mono uppercase text-ink-3;
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
+  }
+  .hairline { @apply border-t border-rule-soft; }
+  .hairline-strong { @apply border-t border-rule; }
+
+  .btn {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 font-mono uppercase
+           border border-rule text-ink-2 transition-colors;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+  }
+  .btn:hover { @apply text-ink border-rule-strong; }
+  .btn-ghost { @apply border-transparent text-ink-3 px-1; }
+  .btn-ghost:hover { @apply text-ink border-transparent; }
+  .btn-primary {
+    @apply text-[var(--accent-fg)];
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .tag {
+    @apply inline-flex items-center gap-1 px-1.5 py-px font-mono uppercase
+           border border-rule text-ink-2;
+    font-size: 9.5px;
+    letter-spacing: 0.10em;
+  }
+  .tag-solid {
+    @apply text-[var(--accent-fg)] border-transparent;
+    background: var(--accent);
+  }
+
+  .chip {
+    @apply font-mono uppercase px-3 py-1 border border-rule-soft text-ink-3 cursor-default;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    border-right-width: 0;
+  }
+  .chip:first-child { border-left-width: 1px; }
+  .chip:last-child  { border-right-width: 1px; }
+  .chip:hover { @apply text-ink border-rule; }
+  .chip-active {
+    @apply text-[var(--accent-fg)] border-transparent;
+    background: var(--accent);
+  }
+
+  .section-head {
+    @apply flex items-baseline gap-3.5 mt-9 mb-4 pb-2.5 border-b border-rule-strong;
+  }
+  .section-head .num {
+    @apply font-mono uppercase font-medium;
+    color: var(--accent);
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+  }
+  .section-head h2 {
+    @apply font-serif italic text-2xl font-normal text-ink flex-1;
+    letter-spacing: -0.015em;
+  }
+  .section-head .meta {
+    @apply font-mono uppercase text-ink-3;
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+  }
+}
