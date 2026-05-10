@@ -85,11 +85,11 @@ export default async function DashboardPage() {
       </header>
 
       {/* §01 — Money this month */}
-      <SectionHead num="01" title="Money, this month" meta={`${month} so far`} action={<Link href="/transactions" className="btn-ghost btn">Open ledger →</Link>} />
+      <SectionHead num="01" title="Money, this month" meta={`${month} so far`} action={<Link href="/dashboard/transactions" className="btn-ghost btn">Open ledger →</Link>} />
       {income === 0 && expense === 0 ? (
         <div className="border border-rule-soft p-8 text-center">
           <p className="font-serif italic text-[17px] text-ink-3">No transactions recorded yet.</p>
-          <Link href="/transactions" className="btn mt-4 inline-flex">Add first transaction →</Link>
+          <Link href="/dashboard/transactions" className="btn mt-4 inline-flex">Add first transaction →</Link>
         </div>
       ) : (
         <div className="border-y border-rule-soft divide-y divide-rule-soft">
@@ -105,11 +105,11 @@ export default async function DashboardPage() {
       )}
 
       {/* §02 — Coming due */}
-      <SectionHead num="02" title="Coming due" meta="next 14 days" action={<Link href="/bills" className="btn-ghost btn">All bills →</Link>} />
+      <SectionHead num="02" title="Coming due" meta="next 14 days" action={<Link href="/dashboard/bills" className="btn-ghost btn">All bills →</Link>} />
       {upcomingBills.length === 0 ? (
         <div className="border border-rule-soft p-8 text-center">
           <p className="font-serif italic text-[17px] text-ink-3">No upcoming bills.</p>
-          <Link href="/bills" className="btn mt-4 inline-flex">Add a bill →</Link>
+          <Link href="/dashboard/bills" className="btn mt-4 inline-flex">Add a bill →</Link>
         </div>
       ) : (
         <div className="border-y border-rule-soft divide-y divide-rule-soft">
@@ -127,11 +127,11 @@ export default async function DashboardPage() {
       )}
 
       {/* §03 — In motion / Goals */}
-      <SectionHead num="03" title="In motion" meta={`savings · ${goals.length} active`} action={<Link href="/goals" className="btn-ghost btn">All goals →</Link>} />
+      <SectionHead num="03" title="In motion" meta={`savings · ${goals.length} active`} action={<Link href="/dashboard/goals" className="btn-ghost btn">All goals →</Link>} />
       {goals.length === 0 ? (
         <div className="border border-rule-soft p-8 text-center">
           <p className="font-serif italic text-[17px] text-ink-3">No savings goals yet.</p>
-          <Link href="/goals" className="btn mt-4 inline-flex">Set first goal →</Link>
+          <Link href="/dashboard/goals" className="btn mt-4 inline-flex">Set first goal →</Link>
         </div>
       ) : (
         <div className="grid gap-8" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
@@ -164,7 +164,7 @@ export default async function DashboardPage() {
           ) : (
             <p className="font-serif italic text-[17px] text-ink-3 mt-4">Nothing written yet today.</p>
           )}
-          <Link href="/journal" className="btn-ghost btn mt-4">
+          <Link href="/dashboard/journal" className="btn-ghost btn mt-4">
             {lastJournal ? "Continue writing →" : "Start writing →"}
           </Link>
         </div>
@@ -180,7 +180,7 @@ export default async function DashboardPage() {
             ) : (
               <>
                 <p className="font-serif italic text-[15px] text-ink-3 mt-2">No wins logged yet.</p>
-                <Link href="/wins" className="btn-ghost btn mt-3">Log a win →</Link>
+                <Link href="/dashboard/wins" className="btn-ghost btn mt-3">Log a win →</Link>
               </>
             )}
           </div>
@@ -199,7 +199,7 @@ export default async function DashboardPage() {
             ) : (
               <>
                 <p className="font-serif italic text-[15px] text-ink-3 mt-2">No activity logged yet.</p>
-                <Link href="/sports" className="btn-ghost btn mt-3">Log activity →</Link>
+                <Link href="/dashboard/sports" className="btn-ghost btn mt-3">Log activity →</Link>
               </>
             )}
           </div>
