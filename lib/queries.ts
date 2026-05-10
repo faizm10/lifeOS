@@ -3,7 +3,7 @@ import db from "./db";
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type Category = "Groceries"|"Dining"|"Transport"|"Subscriptions"|"Income"|"Health"|"Shopping"|"Bills"|"Entertainment"|"Other";
-export interface Transaction { id: string; user_id: string; date: string; merchant: string; description: string; category: Category; amount: number; }
+export interface Transaction { id: string; user_id: string; date: string; merchant: string; description: string; category: Category; amount: number; account_id?: string; }
 export interface Bill        { id: string; user_id: string; name: string; description: string; logo: string; amount: number; due: string; status: "scheduled"|"due"|"paid"|"over"; recurring: "monthly"|"yearly"; }
 export interface WishlistItem{ id: string; user_id: string; name: string; price: number; priority: "high"|"med"|"low"; note: string; }
 export interface Goal        { id: string; user_id: string; name: string; target: number; saved: number; monthly: number; }
@@ -140,8 +140,12 @@ export function insertMediaItem(item: Omit<MediaItem, "user_id"> & { user_id: st
 // ── Transactions ─ insert ─────────────────────────────────────────────────────
 
 export function insertTransaction(tx: Omit<Transaction, "user_id"> & { user_id: string }): void {
-  db.prepare(`INSERT INTO transactions (id, user_id, date, merchant, description, category, amount) VALUES (?, ?, ?, ?, ?, ?, ?)`)
-    .run(tx.id, tx.user_id, tx.date, tx.merchant, tx.description, tx.category, tx.amount);
+  db.prepare(`INSERT INTO transactions (id, user_id, date, merchant, description, category, amount, account_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
+    .run(tx.id, tx.user_id, tx.date, tx.merchant, tx.description, tx.category, tx.amount, tx.account_id ?? null);
+  if (tx.account_id) {
+    db.prepare(`UPDATE accounts SET balance = balance + ? WHERE id = ? AND user_id = ?`)
+      .run(tx.amount, tx.account_id, tx.user_id);
+  }
 }
 
 // ── Accounts ──────────────────────────────────────────────────────────────────

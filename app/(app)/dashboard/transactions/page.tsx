@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { getTransactions } from "@/lib/queries";
+import { getTransactions, getAccounts } from "@/lib/queries";
 import { definePageMeta } from "@/lib/seo";
 import TransactionsClient from "./TransactionsClient";
 
@@ -14,5 +14,6 @@ export const metadata: Metadata = definePageMeta({
 export default async function TransactionsPage() {
   const session      = await auth.api.getSession({ headers: headers() });
   const transactions = getTransactions(session!.user.id);
-  return <TransactionsClient initialTransactions={transactions} />;
+  const accounts     = getAccounts(session!.user.id);
+  return <TransactionsClient initialTransactions={transactions} accounts={accounts} />;
 }

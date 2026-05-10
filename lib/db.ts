@@ -13,6 +13,7 @@ db.exec(`
     description TEXT NOT NULL DEFAULT '',
     category    TEXT NOT NULL,
     amount      REAL NOT NULL,
+    account_id  TEXT,
     created_at  TEXT DEFAULT (datetime('now'))
   );
   CREATE TABLE IF NOT EXISTS bills (
@@ -95,5 +96,8 @@ db.exec(`
     created_at  TEXT DEFAULT (datetime('now'))
   );
 `);
+
+// Migrate existing installs
+try { db.exec(`ALTER TABLE transactions ADD COLUMN account_id TEXT`); } catch {}
 
 export default db;
