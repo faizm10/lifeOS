@@ -59,16 +59,31 @@ export function updateBillStatus(id: string, userId: string, status: Bill["statu
   db.prepare(`UPDATE bills SET status = ? WHERE id = ? AND user_id = ?`).run(status, id, userId);
 }
 
+export function insertBill(bill: Omit<Bill, "user_id"> & { user_id: string }): void {
+  db.prepare(`INSERT INTO bills (id, user_id, name, description, logo, amount, due, status, recurring) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    .run(bill.id, bill.user_id, bill.name, bill.description, bill.logo, bill.amount, bill.due, bill.status, bill.recurring);
+}
+
 // ── Wishlist ──────────────────────────────────────────────────────────────────
 
 export function getWishlist(userId: string): WishlistItem[] {
   return db.prepare(`SELECT * FROM wishlist WHERE user_id = ? ORDER BY created_at DESC`).all(userId) as WishlistItem[];
 }
 
+export function insertWishlistItem(item: Omit<WishlistItem, "user_id"> & { user_id: string }): void {
+  db.prepare(`INSERT INTO wishlist (id, user_id, name, price, priority, note) VALUES (?, ?, ?, ?, ?, ?)`)
+    .run(item.id, item.user_id, item.name, item.price, item.priority, item.note);
+}
+
 // ── Goals ─────────────────────────────────────────────────────────────────────
 
 export function getGoals(userId: string): Goal[] {
   return db.prepare(`SELECT * FROM goals WHERE user_id = ? ORDER BY created_at ASC`).all(userId) as Goal[];
+}
+
+export function insertGoal(goal: Omit<Goal, "user_id"> & { user_id: string }): void {
+  db.prepare(`INSERT INTO goals (id, user_id, name, target, saved, monthly) VALUES (?, ?, ?, ?, ?, ?)`)
+    .run(goal.id, goal.user_id, goal.name, goal.target, goal.saved, goal.monthly);
 }
 
 // ── Journal ───────────────────────────────────────────────────────────────────
@@ -93,6 +108,11 @@ export function getWins(userId: string): Win[] {
   return rows.map(r => ({ ...r, tags: parseTags(r.tags), pinned: r.pinned === 1 }));
 }
 
+export function insertWin(win: Omit<Win, "user_id"> & { user_id: string }): void {
+  db.prepare(`INSERT INTO wins (id, user_id, date, type, title, body, tags, pinned) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
+    .run(win.id, win.user_id, win.date, win.type, win.title, win.body, JSON.stringify(win.tags), win.pinned ? 1 : 0);
+}
+
 // ── Sports ────────────────────────────────────────────────────────────────────
 
 export function getSportsLog(userId: string): SportsEntry[] {
@@ -108,6 +128,18 @@ export function insertSportsEntry(entry: Omit<SportsEntry, "user_id"> & { user_i
 
 export function getMedia(userId: string): MediaItem[] {
   return db.prepare(`SELECT * FROM media_items WHERE user_id = ? ORDER BY created_at DESC`).all(userId) as MediaItem[];
+}
+
+export function insertMediaItem(item: Omit<MediaItem, "user_id"> & { user_id: string }): void {
+  db.prepare(`INSERT INTO media_items (id, user_id, type, title, author, status, rating) VALUES (?, ?, ?, ?, ?, ?, ?)`)
+    .run(item.id, item.user_id, item.type, item.title, item.author, item.status, item.rating ?? null);
+}
+
+// ── Transactions ─ insert ─────────────────────────────────────────────────────
+
+export function insertTransaction(tx: Omit<Transaction, "user_id"> & { user_id: string }): void {
+  db.prepare(`INSERT INTO transactions (id, user_id, date, merchant, description, category, amount) VALUES (?, ?, ?, ?, ?, ?, ?)`)
+    .run(tx.id, tx.user_id, tx.date, tx.merchant, tx.description, tx.category, tx.amount);
 }
 
 // ── Dashboard summary ─────────────────────────────────────────────────────────
