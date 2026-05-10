@@ -11,10 +11,11 @@ export interface JournalEntry{ id: string; user_id: string; date: string; mood: 
 export interface Win         { id: string; user_id: string; date: string; type: string; title: string; body: string; tags: string[]; pinned: boolean; }
 export interface SportsEntry { id: string; user_id: string; date: string; type: string; name: string; metric: string; }
 export interface MediaItem   { id: string; user_id: string; type: string; title: string; author: string; status: "reading"|"watching"|"done"; rating: number|null; }
+export interface Account     { id: string; user_id: string; name: string; type: "Checking"|"Savings"|"Investment"|"Cash"|"Credit"; balance: number; note: string; }
 
 export interface SidebarCounts {
   transactions: number; bills: number; wishlist: number; goals: number;
-  journal: number; wins: number; sports: number; media: number;
+  journal: number; wins: number; sports: number; media: number; accounts: number;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -40,6 +41,7 @@ export function getSidebarCounts(userId: string): SidebarCounts {
     wins:         count("wins", userId),
     sports:       count("sports_log", userId),
     media:        count("media_items", userId),
+    accounts:     count("accounts", userId),
   };
 }
 
@@ -140,6 +142,21 @@ export function insertMediaItem(item: Omit<MediaItem, "user_id"> & { user_id: st
 export function insertTransaction(tx: Omit<Transaction, "user_id"> & { user_id: string }): void {
   db.prepare(`INSERT INTO transactions (id, user_id, date, merchant, description, category, amount) VALUES (?, ?, ?, ?, ?, ?, ?)`)
     .run(tx.id, tx.user_id, tx.date, tx.merchant, tx.description, tx.category, tx.amount);
+}
+
+// ── Accounts ──────────────────────────────────────────────────────────────────
+
+export function getAccounts(userId: string): Account[] {
+  return db.prepare(`SELECT * FROM accounts WHERE user_id = ? ORDER BY created_at ASC`).all(userId) as Account[];
+}
+
+export function insertAccount(account: Omit<Account, "user_id"> & { user_id: string }): void {
+  db.prepare(`INSERT INTO accounts (id, user_id, name, type, balance, note) VALUES (?, ?, ?, ?, ?, ?)`)
+    .run(account.id, account.user_id, account.name, account.type, account.balance, account.note);
+}
+
+export function updateAccountBalance(id: string, userId: string, balance: number): void {
+  db.prepare(`UPDATE accounts SET balance = ? WHERE id = ? AND user_id = ?`).run(balance, id, userId);
 }
 
 // ── Dashboard summary ─────────────────────────────────────────────────────────

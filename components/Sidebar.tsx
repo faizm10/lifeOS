@@ -8,15 +8,16 @@ import type { SidebarCounts } from "@/lib/queries";
 const NAV = [
   { href: "/dashboard",             label: "Dashboard",        num: "00", key: null },
   { kind: "sec" as const,           label: "Finance" },
-  { href: "/dashboard/transactions", label: "Transactions",     num: "01", key: "transactions" },
-  { href: "/dashboard/bills",        label: "Recurring bills",  num: "02", key: "bills" },
-  { href: "/dashboard/wishlist",     label: "Wishlist",         num: "03", key: "wishlist" },
-  { href: "/dashboard/goals",        label: "Savings goals",    num: "04", key: "goals" },
+  { href: "/dashboard/accounts",     label: "Accounts",         num: "01", key: "accounts" },
+  { href: "/dashboard/transactions", label: "Transactions",     num: "02", key: "transactions" },
+  { href: "/dashboard/bills",        label: "Recurring bills",  num: "03", key: "bills" },
+  { href: "/dashboard/wishlist",     label: "Wishlist",         num: "04", key: "wishlist" },
+  { href: "/dashboard/goals",        label: "Savings goals",    num: "05", key: "goals" },
   { kind: "sec" as const,            label: "Life tracker" },
-  { href: "/dashboard/journal",      label: "Journal",          num: "05", key: "journal" },
-  { href: "/dashboard/wins",         label: "Career wins",      num: "06", key: "wins" },
-  { href: "/dashboard/sports",       label: "Sports & fitness", num: "07", key: "sports" },
-  { href: "/dashboard/media",        label: "Media log",        num: "08", key: "media" },
+  { href: "/dashboard/journal",      label: "Journal",          num: "06", key: "journal" },
+  { href: "/dashboard/wins",         label: "Career wins",      num: "07", key: "wins" },
+  { href: "/dashboard/sports",       label: "Sports & fitness", num: "08", key: "sports" },
+  { href: "/dashboard/media",        label: "Media log",        num: "09", key: "media" },
 ];
 
 interface Props {

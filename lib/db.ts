@@ -85,6 +85,15 @@ db.exec(`
     rating      INTEGER,
     created_at  TEXT DEFAULT (datetime('now'))
   );
+  CREATE TABLE IF NOT EXISTS accounts (
+    id          TEXT PRIMARY KEY,
+    user_id     TEXT NOT NULL,
+    name        TEXT NOT NULL,
+    type        TEXT NOT NULL DEFAULT 'Checking',
+    balance     REAL NOT NULL DEFAULT 0,
+    note        TEXT NOT NULL DEFAULT '',
+    created_at  TEXT DEFAULT (datetime('now'))
+  );
 `);
 
 export default db;

@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 
 const LABELS: Record<string, [string, string]> = {
   "/dashboard":              ["Almanac",      "Dashboard"],
+  "/dashboard/accounts":     ["Finance",      "Accounts"],
   "/dashboard/transactions": ["Finance",      "Transactions"],
   "/dashboard/bills":        ["Finance",      "Recurring bills"],
   "/dashboard/wishlist":     ["Finance",      "Wishlist"],
