@@ -99,6 +99,11 @@ export function getSportsLog(userId: string): SportsEntry[] {
   return db.prepare(`SELECT * FROM sports_log WHERE user_id = ? ORDER BY date DESC, created_at DESC`).all(userId) as SportsEntry[];
 }
 
+export function insertSportsEntry(entry: Omit<SportsEntry, "user_id"> & { user_id: string }): void {
+  db.prepare(`INSERT INTO sports_log (id, user_id, date, type, name, metric) VALUES (?, ?, ?, ?, ?, ?)`)
+    .run(entry.id, entry.user_id, entry.date, entry.type, entry.name, entry.metric);
+}
+
 // ── Media ─────────────────────────────────────────────────────────────────────
 
 export function getMedia(userId: string): MediaItem[] {
