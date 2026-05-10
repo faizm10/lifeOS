@@ -3,28 +3,31 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import type { SidebarCounts } from "@/lib/queries";
 
 const NAV = [
-  { href: "/",             label: "Dashboard",        num: "00" },
+  { href: "/",             label: "Dashboard",        num: "00", key: null },
   { kind: "sec" as const,  label: "Finance" },
-  { href: "/transactions", label: "Transactions",     num: "01" },
-  { href: "/bills",        label: "Recurring bills",  num: "02" },
-  { href: "/wishlist",     label: "Wishlist",          num: "03" },
-  { href: "/goals",        label: "Savings goals",    num: "04" },
+  { href: "/transactions", label: "Transactions",     num: "01", key: "transactions" },
+  { href: "/bills",        label: "Recurring bills",  num: "02", key: "bills" },
+  { href: "/wishlist",     label: "Wishlist",         num: "03", key: "wishlist" },
+  { href: "/goals",        label: "Savings goals",    num: "04", key: "goals" },
   { kind: "sec" as const,  label: "Life tracker" },
-  { href: "/journal",      label: "Journal",          num: "05" },
-  { href: "/wins",         label: "Career wins",      num: "06" },
-  { href: "/sports",       label: "Sports & fitness", num: "07" },
-  { href: "/media",        label: "Media log",        num: "08" },
+  { href: "/journal",      label: "Journal",          num: "05", key: "journal" },
+  { href: "/wins",         label: "Career wins",      num: "06", key: "wins" },
+  { href: "/sports",       label: "Sports & fitness", num: "07", key: "sports" },
+  { href: "/media",        label: "Media log",        num: "08", key: "media" },
 ];
 
-export default function Sidebar() {
+interface Props {
+  userName: string;
+  counts: SidebarCounts;
+}
+
+export default function Sidebar({ userName, counts }: Props) {
   const pathname = usePathname();
   const router   = useRouter();
-  const { data: session } = authClient.useSession();
-
-  const displayName = session?.user?.name ?? "—";
-  const year = new Date().getFullYear();
+  const year     = new Date().getFullYear();
 
   async function handleSignOut() {
     await authClient.signOut();
@@ -53,6 +56,7 @@ export default function Sidebar() {
           );
         }
         const active = pathname === n.href;
+        const c = n.key ? counts[n.key as keyof SidebarCounts] : 0;
         return (
           <Link
             key={n.href}
@@ -66,20 +70,19 @@ export default function Sidebar() {
             )}
             <span className="font-mono not-italic text-ink-4 font-medium w-5" style={{ fontSize: 9.5, letterSpacing: "0.04em" }}>{n.num}</span>
             <span className={`flex-1 ${active ? "italic" : ""}`}>{n.label}</span>
+            {c > 0 && (
+              <span className="ml-auto text-ink-4 font-mono not-italic" style={{ fontSize: 10.5 }}>{c}</span>
+            )}
           </Link>
         );
       })}
 
       <div className="mt-auto pt-3.5 border-t border-rule-soft">
         <div className="flex items-baseline justify-between font-mono uppercase text-ink-3 mb-2" style={{ fontSize: 10, letterSpacing: "0.14em" }}>
-          <span className="text-ink-2 truncate max-w-[120px]">{displayName}</span>
+          <span className="text-ink-2 truncate max-w-[130px]">{userName}</span>
           <span>Vol. I</span>
         </div>
-        <button
-          onClick={handleSignOut}
-          className="btn-ghost btn w-full text-left"
-          style={{ fontSize: 10 }}
-        >
+        <button onClick={handleSignOut} className="btn-ghost btn w-full text-left" style={{ fontSize: 10 }}>
           Sign out →
         </button>
       </div>
