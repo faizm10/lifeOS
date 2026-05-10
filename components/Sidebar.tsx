@@ -1,24 +1,37 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 
 const NAV = [
-  { href: "/",             label: "Dashboard",       num: "00" },
+  { href: "/",             label: "Dashboard",        num: "00" },
   { kind: "sec" as const,  label: "Finance" },
-  { href: "/transactions", label: "Transactions",    num: "01", count: 18 },
-  { href: "/bills",        label: "Recurring bills", num: "02", count: 3 },
-  { href: "/wishlist",     label: "Wishlist",        num: "03" },
-  { href: "/goals",        label: "Savings goals",   num: "04" },
+  { href: "/transactions", label: "Transactions",     num: "01" },
+  { href: "/bills",        label: "Recurring bills",  num: "02" },
+  { href: "/wishlist",     label: "Wishlist",          num: "03" },
+  { href: "/goals",        label: "Savings goals",    num: "04" },
   { kind: "sec" as const,  label: "Life tracker" },
-  { href: "/journal",      label: "Journal",         num: "05" },
-  { href: "/wins",         label: "Career wins",     num: "06" },
+  { href: "/journal",      label: "Journal",          num: "05" },
+  { href: "/wins",         label: "Career wins",      num: "06" },
   { href: "/sports",       label: "Sports & fitness", num: "07" },
-  { href: "/media",        label: "Media log",       num: "08" },
+  { href: "/media",        label: "Media log",        num: "08" },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router   = useRouter();
+  const { data: session } = authClient.useSession();
+
+  const displayName = session?.user?.name ?? "—";
+  const year = new Date().getFullYear();
+
+  async function handleSignOut() {
+    await authClient.signOut();
+    router.push("/login");
+    router.refresh();
+  }
+
   return (
     <aside className="bg-paper-2 border-r border-rule-strong px-[22px] pt-7 pb-5 flex flex-col gap-0.5 sticky top-0 h-screen overflow-y-auto">
       <div className="pb-6 mb-3.5 border-b border-rule-soft">
@@ -26,7 +39,7 @@ export default function Sidebar() {
           LifeOS<span className="text-[var(--accent)] not-italic">·</span>
         </div>
         <div className="font-mono uppercase text-ink-3 mt-1" style={{ fontSize: 9.5, letterSpacing: "0.18em" }}>
-          Almanac · 2026
+          Almanac · {year}
         </div>
       </div>
 
@@ -53,16 +66,22 @@ export default function Sidebar() {
             )}
             <span className="font-mono not-italic text-ink-4 font-medium w-5" style={{ fontSize: 9.5, letterSpacing: "0.04em" }}>{n.num}</span>
             <span className={`flex-1 ${active ? "italic" : ""}`}>{n.label}</span>
-            {n.count != null && (
-              <span className="ml-auto text-ink-4 font-mono not-italic" style={{ fontSize: 10.5 }}>{n.count}</span>
-            )}
           </Link>
         );
       })}
 
-      <div className="mt-auto pt-3.5 border-t border-rule-soft flex items-baseline justify-between font-mono uppercase text-ink-3" style={{ fontSize: 10, letterSpacing: "0.14em" }}>
-        <span className="text-ink-2">Alex Chen</span>
-        <span>Vol. III</span>
+      <div className="mt-auto pt-3.5 border-t border-rule-soft">
+        <div className="flex items-baseline justify-between font-mono uppercase text-ink-3 mb-2" style={{ fontSize: 10, letterSpacing: "0.14em" }}>
+          <span className="text-ink-2 truncate max-w-[120px]">{displayName}</span>
+          <span>Vol. I</span>
+        </div>
+        <button
+          onClick={handleSignOut}
+          className="btn-ghost btn w-full text-left"
+          style={{ fontSize: 10 }}
+        >
+          Sign out →
+        </button>
       </div>
     </aside>
   );

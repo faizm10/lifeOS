@@ -14,9 +14,16 @@ const LABELS: Record<string, [string, string]> = {
   "/media":        ["Life tracker", "Media log"],
 };
 
+const DAY_SHORT   = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const MONTH_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
 export default function Topbar() {
   const pathname = usePathname();
   const [section, current] = LABELS[pathname] ?? ["Almanac", ""];
+
+  const now   = new Date();
+  const today = `${DAY_SHORT[now.getDay()]} ${MONTH_SHORT[now.getMonth()]} ${now.getDate()}`;
+
   return (
     <div className="flex items-baseline gap-4 px-11 pt-[18px] pb-3.5 border-b border-rule-soft bg-paper sticky top-0 z-10">
       <div className="flex items-baseline gap-2 font-mono uppercase text-ink-3" style={{ fontSize: 11, letterSpacing: "0.14em" }}>
@@ -29,7 +36,7 @@ export default function Topbar() {
         <kbd className="font-mono text-[10px] px-1.5 border border-rule">⌘K</kbd>
       </div>
       <span className="font-mono uppercase text-ink-3" style={{ fontSize: 11, letterSpacing: "0.14em" }}>
-        Sat May 9
+        {today}
       </span>
     </div>
   );
