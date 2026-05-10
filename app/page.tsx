@@ -1,17 +1,5 @@
 import Link from "next/link";
 
-const FEATURES = [
-  {
-    num: "01",
-    group: "Finance",
-    items: ["Transaction ledger", "Recurring bills", "Savings goals", "Wishlist with delay rule"],
-  },
-  {
-    num: "02",
-    group: "Life tracker",
-    items: ["Daily journal with mood", "Career wins timeline", "Sports & fitness log", "Media log — books & shows"],
-  },
-];
 
 const QUOTES = [
   { text: "The unexamined life is not worth living.", attr: "Socrates" },
@@ -63,32 +51,6 @@ export default function LandingPage() {
           <p className="font-serif italic text-[15px] text-ink-3 leading-snug">"{quote.text}"</p>
           <footer className="label-mono mt-3">— {quote.attr}</footer>
         </blockquote>
-      </section>
-
-      {/* Divider */}
-      <div className="hairline-strong mx-10" />
-
-      {/* Features */}
-      <section className="px-10 py-16 max-w-4xl mx-auto w-full">
-        <p className="label-mono mb-10 text-center tracking-[0.20em]">What lives inside</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          {FEATURES.map(f => (
-            <div key={f.num} className="border border-rule-soft p-8">
-              <div className="flex items-baseline gap-3 mb-6">
-                <span className="font-mono text-[10px] text-ink-4 tracking-widest">{f.num}</span>
-                <span className="font-serif italic text-[22px] text-ink">{f.group}</span>
-              </div>
-              <ul className="space-y-3">
-                {f.items.map(item => (
-                  <li key={item} className="flex items-baseline gap-3">
-                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1.5" style={{ background: "var(--accent)" }} />
-                    <span className="font-serif text-[15px] text-ink-2">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
       </section>
 
       {/* CTA strip */}
