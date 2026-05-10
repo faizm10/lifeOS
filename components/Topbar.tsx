@@ -31,11 +31,7 @@ export default function Topbar() {
         <span>·</span>
         <span className="text-ink">{current}</span>
       </div>
-      <div className="ml-auto flex items-center gap-2 border-b border-rule pb-1 w-60 text-ink-3 text-[13px]">
-        <input className="flex-1 bg-transparent outline-none placeholder:text-ink-4" placeholder="Search" />
-        <kbd className="font-mono text-[10px] px-1.5 border border-rule">⌘K</kbd>
-      </div>
-      <span className="font-mono uppercase text-ink-3" style={{ fontSize: 11, letterSpacing: "0.14em" }}>
+      <span className="ml-auto font-mono uppercase text-ink-3" style={{ fontSize: 11, letterSpacing: "0.14em" }}>
         {today}
       </span>
     </div>
