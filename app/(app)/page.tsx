@@ -1,6 +1,8 @@
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { getDashboardSummary } from "@/lib/queries";
+import { definePageMeta } from "@/lib/seo";
 import { LabelMono, SectionHead, Bar, Tag, Money } from "@/components/ui";
 import { fmtUsd0, relativeDue } from "@/lib/utils";
 import Link from "next/link";
@@ -8,6 +10,13 @@ import Link from "next/link";
 const DAY_NAMES   = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 const ORDINALS    = ["first","second","third","fourth","fifth","sixth","seventh","eighth","ninth","tenth","eleventh","twelfth","thirteenth","fourteenth","fifteenth","sixteenth","seventeenth","eighteenth","nineteenth","twentieth","twenty-first","twenty-second","twenty-third","twenty-fourth","twenty-fifth","twenty-sixth","twenty-seventh","twenty-eighth","twenty-ninth","thirtieth","thirty-first"];
+
+export const metadata: Metadata = definePageMeta({
+  title: "Dashboard",
+  description:
+    "Your LifeOS home — month-to-date money, upcoming bills, savings goals, journal, wins, and sports at a glance.",
+  path: "/",
+});
 
 function weekNumber(d: Date) {
   const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));

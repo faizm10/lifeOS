@@ -1,4 +1,27 @@
 {
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/bills/status/route": "app/api/bills/status/route.js",
+  "/api/journal/route": "app/api/journal/route.js",
+  "/api/goals/route": "app/api/goals/route.js",
+  "/api/sports/route": "app/api/sports/route.js",
+  "/api/bills/route": "app/api/bills/route.js",
+  "/manifest.webmanifest/route": "app/manifest.webmanifest/route.js",
+  "/api/wins/route": "app/api/wins/route.js",
+  "/api/wishlist/route": "app/api/wishlist/route.js",
+  "/api/transactions/route": "app/api/transactions/route.js",
+  "/sitemap.xml/route": "app/sitemap.xml/route.js",
+  "/robots.txt/route": "app/robots.txt/route.js",
+  "/api/auth/[...all]/route": "app/api/auth/[...all]/route.js",
+  "/api/media/route": "app/api/media/route.js",
+  "/login/page": "app/login/page.js",
+  "/signup/page": "app/signup/page.js",
   "/(app)/goals/page": "app/(app)/goals/page.js",
-  "/(app)/page": "app/(app)/page.js"
+  "/(app)/media/page": "app/(app)/media/page.js",
+  "/(app)/bills/page": "app/(app)/bills/page.js",
+  "/(app)/journal/page": "app/(app)/journal/page.js",
+  "/(app)/wins/page": "app/(app)/wins/page.js",
+  "/(app)/transactions/page": "app/(app)/transactions/page.js",
+  "/(app)/sports/page": "app/(app)/sports/page.js",
+  "/(app)/page": "app/(app)/page.js",
+  "/(app)/wishlist/page": "app/(app)/wishlist/page.js"
 }
