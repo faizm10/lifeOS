@@ -41,6 +41,18 @@ export default function JournalClient({ initialEntries, userId }: { initialEntri
     setSaving(false);
   }
 
+  async function handleDelete(id: string) {
+    await fetch(`/api/journal/${id}`, { method: "DELETE" });
+    const remaining = entries.filter(e => e.id !== id);
+    setEntries(remaining);
+    if (selectedId === id) {
+      const next = remaining[0] ?? null;
+      setSelectedId(next?.id ?? null);
+      setDraft(next?.body ?? "");
+      setMood(next?.mood ?? 3);
+    }
+  }
+
   return (
     <div className="grid min-h-[calc(100vh-60px)]" style={{ gridTemplateColumns: "260px 1fr", background: "oklch(0.955 0.022 75)" }}>
       <aside className="border-r border-rule-soft px-6 py-7 overflow-y-auto">
@@ -54,14 +66,19 @@ export default function JournalClient({ initialEntries, userId }: { initialEntri
         ) : (
           <div className="mt-6 divide-y divide-rule-soft">
             {entries.map(e => (
-              <button key={e.id} onClick={() => selectEntry(e)}
-                className={clsx("w-full text-left py-3 transition-colors", e.id === selectedId ? "" : "opacity-65 hover:opacity-100")}>
-                <div className="flex items-baseline justify-between">
-                  <span className="label-mono">{fmtDate(e.date)}</span>
-                  <span className="font-mono text-[13px]" style={{ color: "var(--accent)" }}>{MOODS[e.mood - 1]}</span>
+              <div key={e.id} className="py-3">
+                <button onClick={() => selectEntry(e)}
+                  className={clsx("w-full text-left transition-colors", e.id === selectedId ? "" : "opacity-65 hover:opacity-100")}>
+                  <div className="flex items-baseline justify-between">
+                    <span className="label-mono">{fmtDate(e.date)}</span>
+                    <span className="font-mono text-[13px]" style={{ color: "var(--accent)" }}>{MOODS[e.mood - 1]}</span>
+                  </div>
+                  <div className="font-serif text-[15px] text-ink leading-snug mt-1 line-clamp-2">{e.title || "Untitled"}</div>
+                </button>
+                <div className="flex justify-end mt-1">
+                  <button onClick={() => handleDelete(e.id)} className="btn text-[10px] text-[var(--accent)]">Delete</button>
                 </div>
-                <div className="font-serif text-[15px] text-ink leading-snug mt-1 line-clamp-2">{e.title || "Untitled"}</div>
-              </button>
+              </div>
             ))}
           </div>
         )}

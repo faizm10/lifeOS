@@ -163,6 +163,94 @@ export function updateAccountBalance(id: string, userId: string, balance: number
   db.prepare(`UPDATE accounts SET balance = ? WHERE id = ? AND user_id = ?`).run(balance, id, userId);
 }
 
+// ── Delete / Update helpers ───────────────────────────────────────────────────
+
+export function deleteRecord(table: string, id: string, userId: string): void {
+  db.prepare(`DELETE FROM ${table} WHERE id = ? AND user_id = ?`).run(id, userId);
+}
+
+export function deleteTransaction(id: string, userId: string): void {
+  const tx = db.prepare(`SELECT * FROM transactions WHERE id = ? AND user_id = ?`).get(id, userId) as Transaction | undefined;
+  if (tx?.account_id) {
+    db.prepare(`UPDATE accounts SET balance = balance - ? WHERE id = ? AND user_id = ?`).run(tx.amount, tx.account_id, userId);
+  }
+  db.prepare(`DELETE FROM transactions WHERE id = ? AND user_id = ?`).run(id, userId);
+}
+
+export function updateTransaction(id: string, userId: string, data: Partial<Omit<Transaction, "id"|"user_id">>): void {
+  const old = db.prepare(`SELECT * FROM transactions WHERE id = ? AND user_id = ?`).get(id, userId) as Transaction | undefined;
+  if (!old) return;
+  const next = { ...old, ...data };
+  if (old.account_id) db.prepare(`UPDATE accounts SET balance = balance - ? WHERE id = ? AND user_id = ?`).run(old.amount, old.account_id, userId);
+  db.prepare(`UPDATE transactions SET date=?, merchant=?, description=?, category=?, amount=?, account_id=? WHERE id=? AND user_id=?`)
+    .run(next.date, next.merchant, next.description, next.category, next.amount, next.account_id ?? null, id, userId);
+  if (next.account_id) db.prepare(`UPDATE accounts SET balance = balance + ? WHERE id = ? AND user_id = ?`).run(next.amount, next.account_id, userId);
+}
+
+export function updateBill(id: string, userId: string, data: Partial<Omit<Bill, "id"|"user_id">>): void {
+  const old = db.prepare(`SELECT * FROM bills WHERE id = ? AND user_id = ?`).get(id, userId) as Bill | undefined;
+  if (!old) return;
+  const next = { ...old, ...data };
+  db.prepare(`UPDATE bills SET name=?, description=?, logo=?, amount=?, due=?, status=?, recurring=? WHERE id=? AND user_id=?`)
+    .run(next.name, next.description, next.logo, next.amount, next.due, next.status, next.recurring, id, userId);
+}
+
+export function updateWishlistItem(id: string, userId: string, data: Partial<Omit<WishlistItem, "id"|"user_id">>): void {
+  const old = db.prepare(`SELECT * FROM wishlist WHERE id = ? AND user_id = ?`).get(id, userId) as WishlistItem | undefined;
+  if (!old) return;
+  const next = { ...old, ...data };
+  db.prepare(`UPDATE wishlist SET name=?, price=?, priority=?, note=? WHERE id=? AND user_id=?`)
+    .run(next.name, next.price, next.priority, next.note, id, userId);
+}
+
+export function updateGoal(id: string, userId: string, data: Partial<Omit<Goal, "id"|"user_id">>): void {
+  const old = db.prepare(`SELECT * FROM goals WHERE id = ? AND user_id = ?`).get(id, userId) as Goal | undefined;
+  if (!old) return;
+  const next = { ...old, ...data };
+  db.prepare(`UPDATE goals SET name=?, target=?, saved=?, monthly=? WHERE id=? AND user_id=?`)
+    .run(next.name, next.target, next.saved, next.monthly, id, userId);
+}
+
+export function deleteWin(id: string, userId: string): void { deleteRecord("wins", id, userId); }
+export function updateWin(id: string, userId: string, data: Partial<Omit<Win, "id"|"user_id">>): void {
+  const old = db.prepare(`SELECT * FROM wins WHERE id = ? AND user_id = ?`).get(id, userId) as (Omit<Win,"tags"|"pinned"> & { tags: string; pinned: number }) | undefined;
+  if (!old) return;
+  const next = { ...old, ...data };
+  db.prepare(`UPDATE wins SET date=?, type=?, title=?, body=?, tags=?, pinned=? WHERE id=? AND user_id=?`)
+    .run(next.date, next.type, next.title, next.body, JSON.stringify(next.tags ?? []), next.pinned ? 1 : 0, id, userId);
+}
+
+export function deleteSportsEntry(id: string, userId: string): void { deleteRecord("sports_log", id, userId); }
+export function updateSportsEntry(id: string, userId: string, data: Partial<Omit<SportsEntry, "id"|"user_id">>): void {
+  const old = db.prepare(`SELECT * FROM sports_log WHERE id = ? AND user_id = ?`).get(id, userId) as SportsEntry | undefined;
+  if (!old) return;
+  const next = { ...old, ...data };
+  db.prepare(`UPDATE sports_log SET date=?, type=?, name=?, metric=? WHERE id=? AND user_id=?`)
+    .run(next.date, next.type, next.name, next.metric, id, userId);
+}
+
+export function deleteMediaItem(id: string, userId: string): void { deleteRecord("media_items", id, userId); }
+export function updateMediaItem(id: string, userId: string, data: Partial<Omit<MediaItem, "id"|"user_id">>): void {
+  const old = db.prepare(`SELECT * FROM media_items WHERE id = ? AND user_id = ?`).get(id, userId) as MediaItem | undefined;
+  if (!old) return;
+  const next = { ...old, ...data };
+  db.prepare(`UPDATE media_items SET type=?, title=?, author=?, status=?, rating=? WHERE id=? AND user_id=?`)
+    .run(next.type, next.title, next.author, next.status, next.rating ?? null, id, userId);
+}
+
+export function deleteJournalEntry(id: string, userId: string): void { deleteRecord("journal_entries", id, userId); }
+export function deleteAccount(id: string, userId: string): void { deleteRecord("accounts", id, userId); }
+export function updateAccount(id: string, userId: string, data: Partial<Omit<Account, "id"|"user_id">>): void {
+  const old = db.prepare(`SELECT * FROM accounts WHERE id = ? AND user_id = ?`).get(id, userId) as Account | undefined;
+  if (!old) return;
+  const next = { ...old, ...data };
+  db.prepare(`UPDATE accounts SET name=?, type=?, balance=?, note=? WHERE id=? AND user_id=?`)
+    .run(next.name, next.type, next.balance, next.note, id, userId);
+}
+export function deleteBill(id: string, userId: string): void { deleteRecord("bills", id, userId); }
+export function deleteWishlistItem(id: string, userId: string): void { deleteRecord("wishlist", id, userId); }
+export function deleteGoal(id: string, userId: string): void { deleteRecord("goals", id, userId); }
+
 // ── Dashboard summary ─────────────────────────────────────────────────────────
 
 export function getDashboardSummary(userId: string) {

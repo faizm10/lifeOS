@@ -64,6 +64,11 @@ export default function TransactionsClient({ initialTransactions, accounts }: { 
     setSaving(false);
   }
 
+  async function handleDelete(id: string) {
+    await fetch(`/api/transactions/${id}`, { method: "DELETE" });
+    setTransactions(transactions.filter(t => t.id !== id));
+  }
+
   return (
     <div className="px-11 py-8 max-w-[1180px]">
       <header className="flex items-baseline gap-6 mb-2">
@@ -167,12 +172,15 @@ export default function TransactionsClient({ initialTransactions, accounts }: { 
                 {items.map(t => {
                   const acct = accounts.find(a => a.id === t.account_id);
                   return (
-                    <div key={t.id} className="grid items-baseline gap-5 py-2.5" style={{ gridTemplateColumns: "100px 1fr 1.2fr 90px 110px" }}>
+                    <div key={t.id} className="grid items-baseline gap-5 py-2.5" style={{ gridTemplateColumns: "100px 1fr 1.2fr 90px 110px auto" }}>
                       <Tag>{t.category}</Tag>
                       <span className="font-serif text-[15px] text-ink">{t.merchant}</span>
                       <span className="font-serif text-[14px] text-ink-3 italic">{t.description}</span>
                       <span className="label-mono truncate">{acct?.name ?? ""}</span>
                       <span className="text-right font-mono text-[14px] tabular-nums"><Money value={t.amount} signed /></span>
+                      <div className="flex items-center gap-1.5 ml-auto">
+                        <button onClick={() => handleDelete(t.id)} className="btn text-[10px] text-[var(--accent)]">Delete</button>
+                      </div>
                     </div>
                   );
                 })}

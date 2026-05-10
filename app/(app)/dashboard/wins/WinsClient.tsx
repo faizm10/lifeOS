@@ -14,6 +14,9 @@ export default function WinsClient({ initialWins }: { initialWins: Win[] }) {
   const [saving, setSaving]   = useState(false);
   const [form, setForm]       = useState({ type: "Shipped", title: "", body: "", date: new Date().toISOString().slice(0, 10), pinned: false });
 
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm]   = useState({ date: "", type: "Shipped", title: "", body: "" });
+
   const filtered = useMemo(
     () => filter === "All" ? wins : wins.filter(w => w.type === filter),
     [filter, wins]
@@ -22,6 +25,11 @@ export default function WinsClient({ initialWins }: { initialWins: Win[] }) {
   function field(k: keyof typeof form) {
     return (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
       setForm(f => ({ ...f, [k]: e.target.value }));
+  }
+
+  function editField(k: keyof typeof editForm) {
+    return (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
+      setEditForm(f => ({ ...f, [k]: e.target.value }));
   }
 
   async function handleAdd(e: React.FormEvent) {
@@ -38,6 +46,28 @@ export default function WinsClient({ initialWins }: { initialWins: Win[] }) {
     setForm({ type: "Shipped", title: "", body: "", date: new Date().toISOString().slice(0, 10), pinned: false });
     setShowForm(false);
     setSaving(false);
+  }
+
+  async function handleDelete(id: string) {
+    await fetch(`/api/wins/${id}`, { method: "DELETE" });
+    setWins(wins.filter(w => w.id !== id));
+  }
+
+  async function handleUpdate(id: string) {
+    const updated = {
+      date: editForm.date,
+      type: editForm.type,
+      title: editForm.title,
+      body: editForm.body,
+    };
+    await fetch(`/api/wins/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updated) });
+    setWins(wins.map(w => w.id === id ? { ...w, ...updated } : w));
+    setEditingId(null);
+  }
+
+  function startEdit(w: Win) {
+    setEditingId(w.id);
+    setEditForm({ date: w.date, type: w.type, title: w.title, body: w.body ?? "" });
   }
 
   return (
@@ -111,20 +141,45 @@ export default function WinsClient({ initialWins }: { initialWins: Win[] }) {
         <div className="relative" style={{ marginLeft: 110 }}>
           <div className="absolute top-0 bottom-0 w-px bg-rule-soft" style={{ left: -1 }} />
           {filtered.map(w => (
-            <article key={w.id} className="relative pl-8 pb-9">
-              <span className="absolute -left-[5px] top-2 w-2.5 h-2.5 border"
-                style={{ background: w.pinned ? "var(--accent)" : "oklch(0.965 0.014 85)", borderColor: w.pinned ? "var(--accent)" : "oklch(0.66 0.025 70)" }} />
-              <div className="absolute -left-[110px] top-0.5 w-[90px] text-right">
-                <div className="label-mono">{w.date}</div>
-                <div className="font-mono text-[10.5px] mt-0.5" style={{ color: "var(--accent)", letterSpacing: "0.14em", textTransform: "uppercase" }}>{w.type}</div>
+            editingId === w.id ? (
+              <div key={w.id} className="border border-rule py-4 px-3 grid gap-3 my-1 relative pl-8">
+                <div className="grid gap-3" style={{ gridTemplateColumns: "1fr 1fr 2fr" }}>
+                  <input type="date" value={editForm.date} onChange={editField("date")}
+                    className="bg-transparent border-b border-rule font-mono text-sm text-ink py-1 outline-none focus:border-[var(--accent)]" />
+                  <select value={editForm.type} onChange={editField("type")}
+                    className="bg-transparent border-b border-rule font-mono text-sm text-ink py-1 outline-none focus:border-[var(--accent)]">
+                    {TYPES.slice(1).map(t => <option key={t}>{t}</option>)}
+                  </select>
+                  <input value={editForm.title} onChange={editField("title")} placeholder="Title"
+                    className="bg-transparent border-b border-rule font-mono text-sm text-ink py-1 outline-none focus:border-[var(--accent)]" />
+                </div>
+                <textarea value={editForm.body} onChange={editField("body")} rows={2} placeholder="Details"
+                  className="bg-transparent border-b border-rule font-mono text-sm text-ink py-1 outline-none focus:border-[var(--accent)] resize-none" />
+                <div className="flex items-center gap-1.5">
+                  <button onClick={() => handleUpdate(w.id)} className="btn-primary btn text-[10px]">Save</button>
+                  <button onClick={() => setEditingId(null)} className="btn text-[10px]">Cancel</button>
+                </div>
               </div>
-              <h3 className="font-serif text-[22px] leading-tight text-ink">
-                {w.pinned && <span className="font-mono text-[10px] text-[var(--accent)] mr-2 align-middle" style={{ letterSpacing: "0.14em" }}>PINNED</span>}
-                {w.title}
-              </h3>
-              <p className="font-serif text-[15px] text-ink-2 leading-[1.55] mt-1.5">{w.body}</p>
-              <div className="flex gap-1.5 mt-2.5">{w.tags.map(t => <Tag key={t}>{t}</Tag>)}</div>
-            </article>
+            ) : (
+              <article key={w.id} className="relative pl-8 pb-9">
+                <span className="absolute -left-[5px] top-2 w-2.5 h-2.5 border"
+                  style={{ background: w.pinned ? "var(--accent)" : "oklch(0.965 0.014 85)", borderColor: w.pinned ? "var(--accent)" : "oklch(0.66 0.025 70)" }} />
+                <div className="absolute -left-[110px] top-0.5 w-[90px] text-right">
+                  <div className="label-mono">{w.date}</div>
+                  <div className="font-mono text-[10.5px] mt-0.5" style={{ color: "var(--accent)", letterSpacing: "0.14em", textTransform: "uppercase" }}>{w.type}</div>
+                </div>
+                <h3 className="font-serif text-[22px] leading-tight text-ink">
+                  {w.pinned && <span className="font-mono text-[10px] text-[var(--accent)] mr-2 align-middle" style={{ letterSpacing: "0.14em" }}>PINNED</span>}
+                  {w.title}
+                </h3>
+                <p className="font-serif text-[15px] text-ink-2 leading-[1.55] mt-1.5">{w.body}</p>
+                <div className="flex gap-1.5 mt-2.5">{w.tags.map(t => <Tag key={t}>{t}</Tag>)}</div>
+                <div className="flex items-center gap-1.5 ml-auto mt-2">
+                  <button onClick={() => startEdit(w)} className="btn text-[10px]">Edit</button>
+                  <button onClick={() => handleDelete(w.id)} className="btn text-[10px] text-[var(--accent)]">Delete</button>
+                </div>
+              </article>
+            )
           ))}
         </div>
       )}

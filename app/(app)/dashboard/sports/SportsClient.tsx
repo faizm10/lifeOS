@@ -12,9 +12,17 @@ export default function SportsClient({ initialLog }: { initialLog: SportsEntry[]
   const [saving, setSaving]   = useState(false);
   const [form, setForm]       = useState({ type: "Run", name: "", date: new Date().toISOString().slice(0, 10), metric: "" });
 
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm]   = useState({ date: "", type: "Run", name: "", metric: "" });
+
   function field(k: keyof typeof form) {
     return (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
       setForm(f => ({ ...f, [k]: e.target.value }));
+  }
+
+  function editField(k: keyof typeof editForm) {
+    return (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+      setEditForm(f => ({ ...f, [k]: e.target.value }));
   }
 
   async function handleAdd(e: React.FormEvent) {
@@ -27,6 +35,28 @@ export default function SportsClient({ initialLog }: { initialLog: SportsEntry[]
     setForm({ type: "Run", name: "", date: new Date().toISOString().slice(0, 10), metric: "" });
     setShowForm(false);
     setSaving(false);
+  }
+
+  async function handleDelete(id: string) {
+    await fetch(`/api/sports/${id}`, { method: "DELETE" });
+    setLog(log.filter(s => s.id !== id));
+  }
+
+  async function handleUpdate(id: string) {
+    const updated = {
+      date: editForm.date,
+      type: editForm.type,
+      name: editForm.name,
+      metric: editForm.metric,
+    };
+    await fetch(`/api/sports/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updated) });
+    setLog(log.map(s => s.id === id ? { ...s, ...updated } : s));
+    setEditingId(null);
+  }
+
+  function startEdit(s: SportsEntry) {
+    setEditingId(s.id);
+    setEditForm({ date: s.date, type: s.type, name: s.name, metric: s.metric ?? "" });
   }
 
   return (
@@ -50,7 +80,6 @@ export default function SportsClient({ initialLog }: { initialLog: SportsEntry[]
       </header>
       <div className="hairline-strong mt-6" />
 
-      {/* Inline add form */}
       {showForm && (
         <form onSubmit={handleAdd} className="border border-rule-soft p-7 mt-6 grid gap-5" style={{ gridTemplateColumns: "1fr 1fr 1fr 1fr auto" }}>
           <div>
@@ -92,12 +121,37 @@ export default function SportsClient({ initialLog }: { initialLog: SportsEntry[]
           <SectionHead num="01" title="Recent sessions" meta={`${log.length} entries`} />
           <div className="divide-y divide-rule-soft">
             {log.map(s => (
-              <div key={s.id} className="grid items-baseline gap-5 py-3.5" style={{ gridTemplateColumns: "120px 80px 1fr 200px" }}>
-                <span className="label-mono">{s.date}</span>
-                <span className="font-mono uppercase text-ink-2" style={{ fontSize: 11, letterSpacing: "0.12em" }}>{s.type}</span>
-                <span className="font-serif italic text-[18px] text-ink">{s.name}</span>
-                <span className="font-mono text-[13px] text-ink-3 tabular-nums text-right">{s.metric}</span>
-              </div>
+              editingId === s.id ? (
+                <div key={s.id} className="border border-rule py-4 px-3 grid gap-3 my-1">
+                  <div className="grid gap-3" style={{ gridTemplateColumns: "120px 80px 1fr 200px" }}>
+                    <input type="date" value={editForm.date} onChange={editField("date")}
+                      className="bg-transparent border-b border-rule font-mono text-sm text-ink py-1 outline-none focus:border-[var(--accent)]" />
+                    <select value={editForm.type} onChange={editField("type")}
+                      className="bg-transparent border-b border-rule font-mono text-sm text-ink py-1 outline-none focus:border-[var(--accent)]">
+                      {TYPES.map(t => <option key={t}>{t}</option>)}
+                    </select>
+                    <input value={editForm.name} onChange={editField("name")} placeholder="Name"
+                      className="bg-transparent border-b border-rule font-mono text-sm text-ink py-1 outline-none focus:border-[var(--accent)]" />
+                    <input value={editForm.metric} onChange={editField("metric")} placeholder="Metric"
+                      className="bg-transparent border-b border-rule font-mono text-sm text-ink py-1 outline-none focus:border-[var(--accent)]" />
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <button onClick={() => handleUpdate(s.id)} className="btn-primary btn text-[10px]">Save</button>
+                    <button onClick={() => setEditingId(null)} className="btn text-[10px]">Cancel</button>
+                  </div>
+                </div>
+              ) : (
+                <div key={s.id} className="grid items-baseline gap-5 py-3.5" style={{ gridTemplateColumns: "120px 80px 1fr 200px auto" }}>
+                  <span className="label-mono">{s.date}</span>
+                  <span className="font-mono uppercase text-ink-2" style={{ fontSize: 11, letterSpacing: "0.12em" }}>{s.type}</span>
+                  <span className="font-serif italic text-[18px] text-ink">{s.name}</span>
+                  <span className="font-mono text-[13px] text-ink-3 tabular-nums text-right">{s.metric}</span>
+                  <div className="flex items-center gap-1.5 ml-auto">
+                    <button onClick={() => startEdit(s)} className="btn text-[10px]">Edit</button>
+                    <button onClick={() => handleDelete(s.id)} className="btn text-[10px] text-[var(--accent)]">Delete</button>
+                  </div>
+                </div>
+              )
             ))}
           </div>
         </>

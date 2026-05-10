@@ -1,13 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { LabelMono, SectionHead } from "@/components/ui";
 import type { Bill } from "@/lib/queries";
 import { relativeDue } from "@/lib/utils";
 
 export default function BillsClient({ initialBills, userId }: { initialBills: Bill[]; userId: string }) {
-  const router = useRouter();
   const [bills, setBills]     = useState<Bill[]>(initialBills);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving]   = useState(false);
@@ -18,6 +16,16 @@ export default function BillsClient({ initialBills, userId }: { initialBills: Bi
     const next = bill.status === "paid" ? "scheduled" : "paid";
     await fetch("/api/bills/status", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, status: next }) });
     setBills(bills.map(b => b.id === id ? { ...b, status: next } : b));
+  }
+
+  async function handleDelete(id: string) {
+    await fetch(`/api/bills/${id}`, { method: "DELETE" });
+    setBills(bills.filter(b => b.id !== id));
+  }
+
+  async function handleUpdate(id: string, updated: Partial<Bill>) {
+    await fetch(`/api/bills/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updated) });
+    setBills(bills.map(b => b.id === id ? { ...b, ...updated } : b));
   }
 
   function field(k: keyof typeof form) {
@@ -112,41 +120,97 @@ export default function BillsClient({ initialBills, userId }: { initialBills: Bi
         </div>
       ) : (
         <>
-          <Group title="Due now"         num="01" items={due}       togglePaid={togglePaid} accent />
-          <Group title="Scheduled"       num="02" items={scheduled} togglePaid={togglePaid} />
-          <Group title="Paid this month" num="03" items={paid}      togglePaid={togglePaid} muted />
+          <Group title="Due now"         num="01" items={due}       togglePaid={togglePaid} onDelete={handleDelete} onUpdate={handleUpdate} accent />
+          <Group title="Scheduled"       num="02" items={scheduled} togglePaid={togglePaid} onDelete={handleDelete} onUpdate={handleUpdate} />
+          <Group title="Paid this month" num="03" items={paid}      togglePaid={togglePaid} onDelete={handleDelete} onUpdate={handleUpdate} muted />
         </>
       )}
     </div>
   );
 }
 
-function Group({ title, num, items, togglePaid, accent, muted }: {
+function Group({ title, num, items, togglePaid, onDelete, onUpdate, accent, muted }: {
   title: string; num: string; items: Bill[];
-  togglePaid: (id: string) => void; accent?: boolean; muted?: boolean;
+  togglePaid: (id: string) => void;
+  onDelete: (id: string) => void;
+  onUpdate: (id: string, updated: Partial<Bill>) => void;
+  accent?: boolean; muted?: boolean;
 }) {
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm]   = useState({ name: "", description: "", amount: "", due: "", recurring: "monthly" as Bill["recurring"] });
+
+  function startEdit(b: Bill) {
+    setEditingId(b.id);
+    setEditForm({ name: b.name, description: b.description ?? "", amount: String(b.amount), due: b.due, recurring: b.recurring });
+  }
+
+  function editField(k: keyof typeof editForm) {
+    return (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+      setEditForm(f => ({ ...f, [k]: e.target.value }));
+  }
+
+  async function saveEdit(id: string) {
+    const updated = {
+      name: editForm.name,
+      description: editForm.description,
+      amount: parseFloat(editForm.amount) || 0,
+      due: editForm.due,
+      recurring: editForm.recurring,
+    };
+    await onUpdate(id, updated);
+    setEditingId(null);
+  }
+
   if (!items.length) return null;
   return (
     <>
       <SectionHead num={num} title={title} meta={`${items.length} bills`} />
       <div className="border-y border-rule-soft divide-y divide-rule-soft">
         {items.map(b => (
-          <div key={b.id} className={`grid items-baseline gap-5 py-3.5 ${muted ? "opacity-55" : ""}`}
-               style={{ gridTemplateColumns: "auto 1fr auto auto auto" }}>
-            <span className="font-mono uppercase text-ink-4 w-9 text-center"
-                  style={{ fontSize: 11, letterSpacing: "0.10em", border: "1px solid currentColor", padding: "3px 0" }}>
-              {b.logo || b.name.slice(0, 2).toUpperCase()}
-            </span>
-            <div>
-              <div className="font-serif text-[16px] text-ink">{b.name}</div>
-              <div className="label-mono mt-0.5">{b.description} · {b.recurring}</div>
+          editingId === b.id ? (
+            <div key={b.id} className="border border-rule py-4 px-3 grid gap-3 my-1">
+              <div className="grid gap-3" style={{ gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr" }}>
+                <input value={editForm.name} onChange={editField("name")} placeholder="Name"
+                  className="bg-transparent border-b border-rule font-mono text-sm text-ink py-1 outline-none focus:border-[var(--accent)]" />
+                <input value={editForm.description} onChange={editField("description")} placeholder="Description"
+                  className="bg-transparent border-b border-rule font-mono text-sm text-ink py-1 outline-none focus:border-[var(--accent)]" />
+                <input type="number" value={editForm.amount} onChange={editField("amount")} placeholder="Amount"
+                  className="bg-transparent border-b border-rule font-mono text-sm text-ink py-1 outline-none focus:border-[var(--accent)]" />
+                <input type="date" value={editForm.due} onChange={editField("due")}
+                  className="bg-transparent border-b border-rule font-mono text-sm text-ink py-1 outline-none focus:border-[var(--accent)]" />
+                <select value={editForm.recurring} onChange={editField("recurring")}
+                  className="bg-transparent border-b border-rule font-mono text-sm text-ink py-1 outline-none focus:border-[var(--accent)]">
+                  <option value="monthly">Monthly</option>
+                  <option value="yearly">Yearly</option>
+                </select>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <button onClick={() => saveEdit(b.id)} className="btn-primary btn text-[10px]">Save</button>
+                <button onClick={() => setEditingId(null)} className="btn text-[10px]">Cancel</button>
+              </div>
             </div>
-            <span className="font-mono uppercase" style={{ fontSize: 10.5, letterSpacing: "0.14em", color: b.status === "over" ? "var(--neg)" : b.status === "due" ? "var(--warn)" : undefined }}>
-              {muted ? "Paid" : relativeDue(b.due)}
-            </span>
-            <span className="font-mono text-[15px] text-ink tabular-nums w-24 text-right">${b.amount.toFixed(2)}</span>
-            <button onClick={() => togglePaid(b.id)} className="btn">{b.status === "paid" ? "Undo" : "Mark paid"}</button>
-          </div>
+          ) : (
+            <div key={b.id} className={`grid items-baseline gap-5 py-3.5 ${muted ? "opacity-55" : ""}`}
+                 style={{ gridTemplateColumns: "auto 1fr auto auto auto auto" }}>
+              <span className="font-mono uppercase text-ink-4 w-9 text-center"
+                    style={{ fontSize: 11, letterSpacing: "0.10em", border: "1px solid currentColor", padding: "3px 0" }}>
+                {b.logo || b.name.slice(0, 2).toUpperCase()}
+              </span>
+              <div>
+                <div className="font-serif text-[16px] text-ink">{b.name}</div>
+                <div className="label-mono mt-0.5">{b.description} · {b.recurring}</div>
+              </div>
+              <span className="font-mono uppercase" style={{ fontSize: 10.5, letterSpacing: "0.14em", color: b.status === "over" ? "var(--neg)" : b.status === "due" ? "var(--warn)" : undefined }}>
+                {muted ? "Paid" : relativeDue(b.due)}
+              </span>
+              <span className="font-mono text-[15px] text-ink tabular-nums w-24 text-right">${b.amount.toFixed(2)}</span>
+              <button onClick={() => togglePaid(b.id)} className="btn">{b.status === "paid" ? "Undo" : "Mark paid"}</button>
+              <div className="flex items-center gap-1.5 ml-auto">
+                <button onClick={() => startEdit(b)} className="btn text-[10px]">Edit</button>
+                <button onClick={() => onDelete(b.id)} className="btn text-[10px] text-[var(--accent)]">Delete</button>
+              </div>
+            </div>
+          )
         ))}
       </div>
     </>

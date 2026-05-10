@@ -11,11 +11,18 @@ export default function GoalsClient({ initialGoals }: { initialGoals: Goal[] }) 
   const [saving, setSaving]   = useState(false);
   const [form, setForm]       = useState({ name: "", target: "", saved: "", monthly: "" });
 
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm]   = useState({ name: "", target: "", saved: "", monthly: "" });
+
   const totalSaved  = goals.reduce((s, g) => s + g.saved,  0);
   const totalTarget = goals.reduce((s, g) => s + g.target, 0);
 
   function field(k: keyof typeof form) {
     return (e: React.ChangeEvent<HTMLInputElement>) => setForm(f => ({ ...f, [k]: e.target.value }));
+  }
+
+  function editField(k: keyof typeof editForm) {
+    return (e: React.ChangeEvent<HTMLInputElement>) => setEditForm(f => ({ ...f, [k]: e.target.value }));
   }
 
   async function handleAdd(e: React.FormEvent) {
@@ -33,6 +40,28 @@ export default function GoalsClient({ initialGoals }: { initialGoals: Goal[] }) 
     setForm({ name: "", target: "", saved: "", monthly: "" });
     setShowForm(false);
     setSaving(false);
+  }
+
+  async function handleDelete(id: string) {
+    await fetch(`/api/goals/${id}`, { method: "DELETE" });
+    setGoals(goals.filter(g => g.id !== id));
+  }
+
+  async function handleUpdate(id: string) {
+    const updated = {
+      name: editForm.name,
+      target:  parseFloat(editForm.target)  || 0,
+      saved:   parseFloat(editForm.saved)   || 0,
+      monthly: parseFloat(editForm.monthly) || 0,
+    };
+    await fetch(`/api/goals/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updated) });
+    setGoals(goals.map(g => g.id === id ? { ...g, ...updated } : g));
+    setEditingId(null);
+  }
+
+  function startEdit(g: Goal) {
+    setEditingId(g.id);
+    setEditForm({ name: g.name, target: String(g.target), saved: String(g.saved), monthly: String(g.monthly) });
   }
 
   return (
@@ -97,7 +126,22 @@ export default function GoalsClient({ initialGoals }: { initialGoals: Goal[] }) 
             {goals.map(g => {
               const pct = g.target > 0 ? Math.round((g.saved / g.target) * 100) : 0;
               const monthsLeft = g.monthly > 0 ? Math.ceil((g.target - g.saved) / g.monthly) : null;
-              return (
+              return editingId === g.id ? (
+                <div key={g.id} className="border border-rule py-4 px-3 grid gap-3">
+                  <input value={editForm.name} onChange={editField("name")} placeholder="Goal name"
+                    className="bg-transparent border-b border-rule font-mono text-sm text-ink py-1 outline-none focus:border-[var(--accent)]" />
+                  <input type="number" value={editForm.target} onChange={editField("target")} placeholder="Target ($)"
+                    className="bg-transparent border-b border-rule font-mono text-sm text-ink py-1 outline-none focus:border-[var(--accent)]" />
+                  <input type="number" value={editForm.saved} onChange={editField("saved")} placeholder="Saved ($)"
+                    className="bg-transparent border-b border-rule font-mono text-sm text-ink py-1 outline-none focus:border-[var(--accent)]" />
+                  <input type="number" value={editForm.monthly} onChange={editField("monthly")} placeholder="Monthly ($)"
+                    className="bg-transparent border-b border-rule font-mono text-sm text-ink py-1 outline-none focus:border-[var(--accent)]" />
+                  <div className="flex items-center gap-1.5">
+                    <button onClick={() => handleUpdate(g.id)} className="btn-primary btn text-[10px]">Save</button>
+                    <button onClick={() => setEditingId(null)} className="btn text-[10px]">Cancel</button>
+                  </div>
+                </div>
+              ) : (
                 <div key={g.id} className="border-l border-rule-strong pl-5">
                   <LabelMono>{pct}% complete</LabelMono>
                   <h3 className="font-serif italic text-[24px] text-ink mt-1.5">{g.name}</h3>
@@ -108,6 +152,10 @@ export default function GoalsClient({ initialGoals }: { initialGoals: Goal[] }) 
                   <div className="flex justify-between mt-2 label-mono">
                     {g.monthly > 0 && <span>${g.monthly}/mo</span>}
                     {monthsLeft != null && <span>~{monthsLeft} months</span>}
+                  </div>
+                  <div className="flex items-center gap-1.5 ml-auto mt-2">
+                    <button onClick={() => startEdit(g)} className="btn text-[10px]">Edit</button>
+                    <button onClick={() => handleDelete(g.id)} className="btn text-[10px] text-[var(--accent)]">Delete</button>
                   </div>
                 </div>
               );
