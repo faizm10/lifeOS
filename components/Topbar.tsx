@@ -3,15 +3,15 @@
 import { usePathname } from "next/navigation";
 
 const LABELS: Record<string, [string, string]> = {
-  "/":             ["Almanac",      "Dashboard"],
-  "/transactions": ["Finance",      "Transactions"],
-  "/bills":        ["Finance",      "Recurring bills"],
-  "/wishlist":     ["Finance",      "Wishlist"],
-  "/goals":        ["Finance",      "Savings goals"],
-  "/journal":      ["Life tracker", "Journal"],
-  "/wins":         ["Life tracker", "Career wins"],
-  "/sports":       ["Life tracker", "Sports & fitness"],
-  "/media":        ["Life tracker", "Media log"],
+  "/dashboard":              ["Almanac",      "Dashboard"],
+  "/dashboard/transactions": ["Finance",      "Transactions"],
+  "/dashboard/bills":        ["Finance",      "Recurring bills"],
+  "/dashboard/wishlist":     ["Finance",      "Wishlist"],
+  "/dashboard/goals":        ["Finance",      "Savings goals"],
+  "/dashboard/journal":      ["Life tracker", "Journal"],
+  "/dashboard/wins":         ["Life tracker", "Career wins"],
+  "/dashboard/sports":       ["Life tracker", "Sports & fitness"],
+  "/dashboard/media":        ["Life tracker", "Media log"],
 };
 
 const DAY_SHORT   = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
