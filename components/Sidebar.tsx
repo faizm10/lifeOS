@@ -6,17 +6,17 @@ import { authClient } from "@/lib/auth-client";
 import type { SidebarCounts } from "@/lib/queries";
 
 const NAV = [
-  { href: "/",             label: "Dashboard",        num: "00", key: null },
-  { kind: "sec" as const,  label: "Finance" },
-  { href: "/transactions", label: "Transactions",     num: "01", key: "transactions" },
-  { href: "/bills",        label: "Recurring bills",  num: "02", key: "bills" },
-  { href: "/wishlist",     label: "Wishlist",         num: "03", key: "wishlist" },
-  { href: "/goals",        label: "Savings goals",    num: "04", key: "goals" },
-  { kind: "sec" as const,  label: "Life tracker" },
-  { href: "/journal",      label: "Journal",          num: "05", key: "journal" },
-  { href: "/wins",         label: "Career wins",      num: "06", key: "wins" },
-  { href: "/sports",       label: "Sports & fitness", num: "07", key: "sports" },
-  { href: "/media",        label: "Media log",        num: "08", key: "media" },
+  { href: "/dashboard",             label: "Dashboard",        num: "00", key: null },
+  { kind: "sec" as const,           label: "Finance" },
+  { href: "/dashboard/transactions", label: "Transactions",     num: "01", key: "transactions" },
+  { href: "/dashboard/bills",        label: "Recurring bills",  num: "02", key: "bills" },
+  { href: "/dashboard/wishlist",     label: "Wishlist",         num: "03", key: "wishlist" },
+  { href: "/dashboard/goals",        label: "Savings goals",    num: "04", key: "goals" },
+  { kind: "sec" as const,            label: "Life tracker" },
+  { href: "/dashboard/journal",      label: "Journal",          num: "05", key: "journal" },
+  { href: "/dashboard/wins",         label: "Career wins",      num: "06", key: "wins" },
+  { href: "/dashboard/sports",       label: "Sports & fitness", num: "07", key: "sports" },
+  { href: "/dashboard/media",        label: "Media log",        num: "08", key: "media" },
 ];
 
 interface Props {
