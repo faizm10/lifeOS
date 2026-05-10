@@ -1,1 +1,11 @@
-{}
+{
+  "/page": "app/page.js",
+  "/api/transactions/route": "app/api/transactions/route.js",
+  "/manifest.webmanifest/route": "app/manifest.webmanifest/route.js",
+  "/api/accounts/route": "app/api/accounts/route.js",
+  "/(app)/dashboard/page": "app/(app)/dashboard/page.js",
+  "/(app)/dashboard/bills/page": "app/(app)/dashboard/bills/page.js",
+  "/(app)/dashboard/wishlist/page": "app/(app)/dashboard/wishlist/page.js",
+  "/(app)/dashboard/transactions/page": "app/(app)/dashboard/transactions/page.js",
+  "/(app)/dashboard/accounts/page": "app/(app)/dashboard/accounts/page.js"
+}
