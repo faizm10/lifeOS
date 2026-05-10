@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
 import { LabelMono, Tag, Money } from "@/components/ui";
 import type { Transaction, Category } from "@/lib/queries";
 import { fmtDate, clsx } from "@/lib/utils";
@@ -10,7 +9,6 @@ const FILTERS: ("All" | Category)[] = ["All", "Groceries", "Dining", "Transport"
 const CATEGORIES: Category[] = ["Groceries", "Dining", "Transport", "Subscriptions", "Income", "Health", "Shopping", "Bills", "Entertainment", "Other"];
 
 export default function TransactionsClient({ initialTransactions }: { initialTransactions: Transaction[] }) {
-  const router = useRouter();
   const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
   const [filter, setFilter]   = useState<"All" | Category>("All");
   const [showForm, setShowForm] = useState(false);
@@ -49,7 +47,6 @@ export default function TransactionsClient({ initialTransactions }: { initialTra
     setForm({ date: new Date().toISOString().slice(0, 10), merchant: "", description: "", category: "Groceries", amount: "" });
     setShowForm(false);
     setSaving(false);
-    router.refresh();
   }
 
   return (

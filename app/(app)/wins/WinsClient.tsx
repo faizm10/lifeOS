@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
 import { LabelMono, Tag } from "@/components/ui";
 import type { Win } from "@/lib/queries";
 import { clsx } from "@/lib/utils";
@@ -9,7 +8,6 @@ import { clsx } from "@/lib/utils";
 const TYPES = ["All", "Shipped", "Skill", "PR", "Talk", "Project", "Promotion"];
 
 export default function WinsClient({ initialWins }: { initialWins: Win[] }) {
-  const router = useRouter();
   const [wins, setWins]       = useState<Win[]>(initialWins);
   const [filter, setFilter]   = useState("All");
   const [showForm, setShowForm] = useState(false);
@@ -40,7 +38,6 @@ export default function WinsClient({ initialWins }: { initialWins: Win[] }) {
     setForm({ type: "Shipped", title: "", body: "", date: new Date().toISOString().slice(0, 10), pinned: false });
     setShowForm(false);
     setSaving(false);
-    router.refresh();
   }
 
   return (

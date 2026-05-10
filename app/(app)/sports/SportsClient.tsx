@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { LabelMono, SectionHead } from "@/components/ui";
 import type { SportsEntry } from "@/lib/queries";
 
 const TYPES = ["Run", "Strength", "Yoga", "Cycling", "Swim", "Other"];
 
 export default function SportsClient({ initialLog }: { initialLog: SportsEntry[] }) {
-  const router = useRouter();
   const [log, setLog]         = useState<SportsEntry[]>(initialLog);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving]   = useState(false);
@@ -29,7 +27,6 @@ export default function SportsClient({ initialLog }: { initialLog: SportsEntry[]
     setForm({ type: "Run", name: "", date: new Date().toISOString().slice(0, 10), metric: "" });
     setShowForm(false);
     setSaving(false);
-    router.refresh();
   }
 
   return (

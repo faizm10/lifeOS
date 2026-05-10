@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { LabelMono, Tag } from "@/components/ui";
 import type { WishlistItem } from "@/lib/queries";
 import { fmtUsd0 } from "@/lib/utils";
@@ -9,7 +8,6 @@ import { fmtUsd0 } from "@/lib/utils";
 const PRIORITIES = ["high", "med", "low"] as const;
 
 export default function WishlistClient({ initialItems }: { initialItems: WishlistItem[] }) {
-  const router = useRouter();
   const [items, setItems]     = useState<WishlistItem[]>(initialItems);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving]   = useState(false);
@@ -36,7 +34,6 @@ export default function WishlistClient({ initialItems }: { initialItems: Wishlis
     setForm({ name: "", price: "", priority: "med", note: "" });
     setShowForm(false);
     setSaving(false);
-    router.refresh();
   }
 
   return (

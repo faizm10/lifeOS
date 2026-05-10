@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { LabelMono, Tag } from "@/components/ui";
 import type { MediaItem } from "@/lib/queries";
 
@@ -9,7 +8,6 @@ const TYPES    = ["Book", "Show", "Film"] as const;
 const STATUSES = ["reading", "watching", "done"] as const;
 
 export default function MediaClient({ initialMedia }: { initialMedia: MediaItem[] }) {
-  const router = useRouter();
   const [media, setMedia]     = useState<MediaItem[]>(initialMedia);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving]   = useState(false);
@@ -36,7 +34,6 @@ export default function MediaClient({ initialMedia }: { initialMedia: MediaItem[
     setForm({ type: "Book", title: "", author: "", status: "reading", rating: "" });
     setShowForm(false);
     setSaving(false);
-    router.refresh();
   }
 
   return (

@@ -40,7 +40,6 @@ export default function BillsClient({ initialBills, userId }: { initialBills: Bi
     setForm({ name: "", description: "", logo: "", amount: "", due: "", recurring: "monthly" });
     setShowForm(false);
     setSaving(false);
-    router.refresh();
   }
 
   const due      = bills.filter(b => b.status === "due" || b.status === "over");

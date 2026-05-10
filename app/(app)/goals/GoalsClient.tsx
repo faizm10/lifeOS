@@ -1,13 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { LabelMono, SectionHead, Bar } from "@/components/ui";
 import type { Goal } from "@/lib/queries";
 import { fmtUsd0 } from "@/lib/utils";
 
 export default function GoalsClient({ initialGoals }: { initialGoals: Goal[] }) {
-  const router = useRouter();
   const [goals, setGoals]     = useState<Goal[]>(initialGoals);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving]   = useState(false);
@@ -35,7 +33,6 @@ export default function GoalsClient({ initialGoals }: { initialGoals: Goal[] }) 
     setForm({ name: "", target: "", saved: "", monthly: "" });
     setShowForm(false);
     setSaving(false);
-    router.refresh();
   }
 
   return (
