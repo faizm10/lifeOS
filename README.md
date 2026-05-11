@@ -1,6 +1,17 @@
-# LifeOS — Next.js + TypeScript + Tailwind
+# LifeOS — Personal Almanac
 
 A personal almanac for finance & life tracking. Editorial dark-on-cream aesthetic — serif display + mono labels, hairline rules, no card-grid SaaS clichés.
+
+## Demo account
+
+For testing purposes, a pre-seeded account is available:
+
+| Field    | Value              |
+|----------|--------------------|
+| Email    | `demo@lifeos.app`  |
+| Password | `demo1234`         |
+
+The demo account is populated with sample transactions, bills, goals, journal entries, wins, sports sessions, and media. Run `node scripts/seed.mjs` to re-seed it at any time.
 
 ## Stack
 - **Next.js 14** — App Router, server components by default
