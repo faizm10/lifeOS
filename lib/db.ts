@@ -87,17 +87,19 @@ db.exec(`
     created_at  TEXT DEFAULT (datetime('now'))
   );
   CREATE TABLE IF NOT EXISTS accounts (
-    id          TEXT PRIMARY KEY,
-    user_id     TEXT NOT NULL,
-    name        TEXT NOT NULL,
-    type        TEXT NOT NULL DEFAULT 'Checking',
-    balance     REAL NOT NULL DEFAULT 0,
-    note        TEXT NOT NULL DEFAULT '',
-    created_at  TEXT DEFAULT (datetime('now'))
+    id           TEXT PRIMARY KEY,
+    user_id      TEXT NOT NULL,
+    name         TEXT NOT NULL,
+    type         TEXT NOT NULL DEFAULT 'Checking',
+    balance      REAL NOT NULL DEFAULT 0,
+    credit_limit REAL,
+    note         TEXT NOT NULL DEFAULT '',
+    created_at   TEXT DEFAULT (datetime('now'))
   );
 `);
 
 // Migrate existing installs
 try { db.exec(`ALTER TABLE transactions ADD COLUMN account_id TEXT`); } catch {}
+try { db.exec(`ALTER TABLE accounts ADD COLUMN credit_limit REAL`); } catch {}
 
 export default db;

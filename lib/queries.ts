@@ -11,7 +11,7 @@ export interface JournalEntry{ id: string; user_id: string; date: string; mood: 
 export interface Win         { id: string; user_id: string; date: string; type: string; title: string; body: string; tags: string[]; pinned: boolean; }
 export interface SportsEntry { id: string; user_id: string; date: string; type: string; name: string; metric: string; }
 export interface MediaItem   { id: string; user_id: string; type: string; title: string; author: string; status: "reading"|"watching"|"done"; rating: number|null; }
-export interface Account     { id: string; user_id: string; name: string; type: "Checking"|"Savings"|"Investment"|"Cash"|"Credit"; balance: number; note: string; }
+export interface Account     { id: string; user_id: string; name: string; type: "Checking"|"Savings"|"Investment"|"Cash"|"Credit"; balance: number; credit_limit?: number | null; note: string; }
 
 export interface SidebarCounts {
   transactions: number; bills: number; wishlist: number; goals: number;
@@ -155,8 +155,8 @@ export function getAccounts(userId: string): Account[] {
 }
 
 export function insertAccount(account: Omit<Account, "user_id"> & { user_id: string }): void {
-  db.prepare(`INSERT INTO accounts (id, user_id, name, type, balance, note) VALUES (?, ?, ?, ?, ?, ?)`)
-    .run(account.id, account.user_id, account.name, account.type, account.balance, account.note);
+  db.prepare(`INSERT INTO accounts (id, user_id, name, type, balance, credit_limit, note) VALUES (?, ?, ?, ?, ?, ?, ?)`)
+    .run(account.id, account.user_id, account.name, account.type, account.balance, account.credit_limit ?? null, account.note);
 }
 
 export function updateAccountBalance(id: string, userId: string, balance: number): void {
@@ -244,8 +244,8 @@ export function updateAccount(id: string, userId: string, data: Partial<Omit<Acc
   const old = db.prepare(`SELECT * FROM accounts WHERE id = ? AND user_id = ?`).get(id, userId) as Account | undefined;
   if (!old) return;
   const next = { ...old, ...data };
-  db.prepare(`UPDATE accounts SET name=?, type=?, balance=?, note=? WHERE id=? AND user_id=?`)
-    .run(next.name, next.type, next.balance, next.note, id, userId);
+  db.prepare(`UPDATE accounts SET name=?, type=?, balance=?, credit_limit=?, note=? WHERE id=? AND user_id=?`)
+    .run(next.name, next.type, next.balance, next.credit_limit ?? null, next.note, id, userId);
 }
 export function deleteBill(id: string, userId: string): void { deleteRecord("bills", id, userId); }
 export function deleteWishlistItem(id: string, userId: string): void { deleteRecord("wishlist", id, userId); }

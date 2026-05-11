@@ -1,7 +1,8 @@
 {
-  "/(app)/dashboard/transactions/page": "app/(app)/dashboard/transactions/page.js",
+  "/manifest.webmanifest/route": "app/manifest.webmanifest/route.js",
   "/(app)/dashboard/bills/page": "app/(app)/dashboard/bills/page.js",
   "/(app)/dashboard/wishlist/page": "app/(app)/dashboard/wishlist/page.js",
   "/(app)/dashboard/page": "app/(app)/dashboard/page.js",
+  "/(app)/dashboard/transactions/page": "app/(app)/dashboard/transactions/page.js",
   "/(app)/dashboard/accounts/page": "app/(app)/dashboard/accounts/page.js"
 }
