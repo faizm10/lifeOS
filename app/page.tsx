@@ -57,8 +57,8 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Right: screenshot overflowing */}
-          <div className="flex-1 relative min-w-0" style={{ marginRight: "-2.5rem" }}>
+          {/* Right: screenshot */}
+          <div className="flex-1 relative min-w-0" style={{ marginRight: "2.5rem" }}>
             <div className="relative" style={{ borderRadius: "4px 4px 0 0", overflow: "hidden", boxShadow: "0 2px 40px oklch(0.40 0.04 70 / 0.18), 0 0 0 1px oklch(0.80 0.020 72)" }}>
               <div className="flex items-center gap-1.5 px-3 py-2.5 border-b" style={{ background: "oklch(0.955 0.014 85)", borderColor: "oklch(0.84 0.020 72)" }}>
                 <span className="w-2.5 h-2.5 rounded-full" style={{ background: "oklch(0.75 0.08 25)" }} />
@@ -92,7 +92,7 @@ export default function LandingPage() {
       <section className="px-10 py-20">
         <div className="flex items-center gap-16">
           {/* Screenshot */}
-          <div className="flex-1 relative" style={{ marginLeft: "-2.5rem" }}>
+          <div className="flex-1 relative" style={{ marginLeft: "2.5rem" }}>
             <div className="relative" style={{ borderRadius: "4px", overflow: "hidden", boxShadow: "0 2px 40px oklch(0.40 0.04 70 / 0.18), 0 0 0 1px oklch(0.80 0.020 72)" }}>
               <div className="flex items-center gap-1.5 px-3 py-2.5 border-b" style={{ background: "oklch(0.955 0.014 85)", borderColor: "oklch(0.84 0.020 72)" }}>
                 <span className="w-2.5 h-2.5 rounded-full" style={{ background: "oklch(0.75 0.08 25)" }} />
