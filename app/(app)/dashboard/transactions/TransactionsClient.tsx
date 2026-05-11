@@ -8,6 +8,8 @@ import { fmtDate, clsx } from "@/lib/utils";
 const FILTERS: ("All" | Category)[] = ["All", "Groceries", "Dining", "Transport", "Subscriptions", "Bills", "Income"];
 const CATEGORIES: Category[] = ["Groceries", "Dining", "Transport", "Subscriptions", "Income", "Health", "Shopping", "Bills", "Entertainment", "Other"];
 
+const INPUT = "w-full bg-transparent border-b border-rule font-mono text-sm text-ink py-1 outline-none focus:border-[var(--accent)] placeholder:text-ink-4";
+
 export default function TransactionsClient({ initialTransactions, accounts }: { initialTransactions: Transaction[]; accounts: Account[] }) {
   const defaultAccount = accounts.find(a => a.type === "Checking") ?? accounts[0] ?? null;
 
@@ -18,7 +20,10 @@ export default function TransactionsClient({ initialTransactions, accounts }: { 
   const [filter, setFilter]   = useState<"All" | Category>("All");
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving]   = useState(false);
-  const [form, setForm]       = useState({
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ date: "", merchant: "", description: "", category: "Groceries" as Category, amount: "", account_id: "" });
+
+  const [form, setForm] = useState({
     date: new Date().toISOString().slice(0, 10),
     merchant: "", description: "",
     category: "Groceries" as Category,
@@ -43,6 +48,23 @@ export default function TransactionsClient({ initialTransactions, accounts }: { 
       setForm(f => ({ ...f, [k]: e.target.value }));
   }
 
+  function editField(k: keyof typeof editForm) {
+    return (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+      setEditForm(f => ({ ...f, [k]: e.target.value }));
+  }
+
+  function startEdit(t: Transaction) {
+    setEditingId(t.id);
+    setEditForm({
+      date: t.date,
+      merchant: t.merchant,
+      description: t.description,
+      category: t.category,
+      amount: String(Math.abs(t.amount)),
+      account_id: t.account_id ?? "",
+    });
+  }
+
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
@@ -65,8 +87,31 @@ export default function TransactionsClient({ initialTransactions, accounts }: { 
   }
 
   async function handleDelete(id: string) {
+    const tx = transactions.find(t => t.id === id);
     await fetch(`/api/transactions/${id}`, { method: "DELETE" });
     setTransactions(transactions.filter(t => t.id !== id));
+    if (tx?.account_id) {
+      setAccountBalances(b => ({ ...b, [tx.account_id!]: (b[tx.account_id!] ?? 0) - tx.amount }));
+    }
+  }
+
+  async function handleUpdate(id: string) {
+    const old = transactions.find(t => t.id === id);
+    const isIncome = editForm.category === "Income";
+    const amount   = isIncome ? Math.abs(parseFloat(editForm.amount) || 0) : -(Math.abs(parseFloat(editForm.amount) || 0));
+    const data = { date: editForm.date, merchant: editForm.merchant, description: editForm.description, category: editForm.category, amount, account_id: editForm.account_id || undefined };
+    await fetch(`/api/transactions/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+
+    setTransactions(transactions.map(t => t.id === id ? { ...t, ...data } : t));
+
+    // Adjust account balances optimistically
+    if (old?.account_id) {
+      setAccountBalances(b => ({ ...b, [old.account_id!]: (b[old.account_id!] ?? 0) - old.amount }));
+    }
+    if (data.account_id) {
+      setAccountBalances(b => ({ ...b, [data.account_id!]: (b[data.account_id!] ?? 0) + amount }));
+    }
+    setEditingId(null);
   }
 
   return (
@@ -88,7 +133,6 @@ export default function TransactionsClient({ initialTransactions, accounts }: { 
         </div>
       </header>
 
-      {/* Account balance pills */}
       {accounts.length > 0 && (
         <div className="flex flex-wrap gap-4 mt-4">
           {accounts.map(a => (
@@ -108,35 +152,29 @@ export default function TransactionsClient({ initialTransactions, accounts }: { 
         <form onSubmit={handleAdd} className="border border-rule-soft p-7 mt-5 grid gap-5" style={{ gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr 1fr auto" }}>
           <div>
             <label className="label-mono block mb-2">Date</label>
-            <input type="date" value={form.date} onChange={field("date")}
-              className="w-full bg-transparent border-b border-rule font-mono text-sm text-ink py-2 outline-none focus:border-[var(--accent)]" />
+            <input type="date" value={form.date} onChange={field("date")} className={INPUT} />
           </div>
           <div>
             <label className="label-mono block mb-2">Merchant</label>
-            <input value={form.merchant} onChange={field("merchant")} placeholder="e.g. Whole Foods" required
-              className="w-full bg-transparent border-b border-rule font-mono text-sm text-ink py-2 outline-none focus:border-[var(--accent)] placeholder:text-ink-4" />
+            <input value={form.merchant} onChange={field("merchant")} placeholder="e.g. Whole Foods" required className={INPUT} />
           </div>
           <div>
             <label className="label-mono block mb-2">Description</label>
-            <input value={form.description} onChange={field("description")} placeholder="Optional note"
-              className="w-full bg-transparent border-b border-rule font-mono text-sm text-ink py-2 outline-none focus:border-[var(--accent)] placeholder:text-ink-4" />
+            <input value={form.description} onChange={field("description")} placeholder="Optional note" className={INPUT} />
           </div>
           <div>
             <label className="label-mono block mb-2">Category</label>
-            <select value={form.category} onChange={field("category")}
-              className="w-full bg-transparent border-b border-rule font-mono text-sm text-ink py-2 outline-none focus:border-[var(--accent)]">
+            <select value={form.category} onChange={field("category")} className={INPUT}>
               {CATEGORIES.map(c => <option key={c}>{c}</option>)}
             </select>
           </div>
           <div>
             <label className="label-mono block mb-2">Amount ($)</label>
-            <input type="number" min="0" step="0.01" value={form.amount} onChange={field("amount")} placeholder="0.00" required
-              className="w-full bg-transparent border-b border-rule font-mono text-sm text-ink py-2 outline-none focus:border-[var(--accent)] placeholder:text-ink-4" />
+            <input type="number" min="0" step="0.01" value={form.amount} onChange={field("amount")} placeholder="0.00" required className={INPUT} />
           </div>
           <div>
             <label className="label-mono block mb-2">Account</label>
-            <select value={form.account_id} onChange={field("account_id")}
-              className="w-full bg-transparent border-b border-rule font-mono text-sm text-ink py-2 outline-none focus:border-[var(--accent)]">
+            <select value={form.account_id} onChange={field("account_id")} className={INPUT}>
               <option value="">— none —</option>
               {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
             </select>
@@ -171,6 +209,27 @@ export default function TransactionsClient({ initialTransactions, accounts }: { 
               <div className="divide-y divide-rule-soft">
                 {items.map(t => {
                   const acct = accounts.find(a => a.id === t.account_id);
+                  if (editingId === t.id) {
+                    return (
+                      <div key={t.id} className="border border-rule py-4 px-3 my-1 grid gap-3" style={{ gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr 1fr auto" }}>
+                        <input type="date" value={editForm.date} onChange={editField("date")} className={INPUT} />
+                        <input value={editForm.merchant} onChange={editField("merchant")} placeholder="Merchant" className={INPUT} />
+                        <input value={editForm.description} onChange={editField("description")} placeholder="Description" className={INPUT} />
+                        <select value={editForm.category} onChange={editField("category")} className={INPUT}>
+                          {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                        </select>
+                        <input type="number" min="0" step="0.01" value={editForm.amount} onChange={editField("amount")} placeholder="0.00" className={INPUT} />
+                        <select value={editForm.account_id} onChange={editField("account_id")} className={INPUT}>
+                          <option value="">— none —</option>
+                          {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                        </select>
+                        <div className="flex items-center gap-1.5">
+                          <button onClick={() => handleUpdate(t.id)} className="btn-primary btn text-[10px]">Save</button>
+                          <button onClick={() => setEditingId(null)} className="btn text-[10px]">Cancel</button>
+                        </div>
+                      </div>
+                    );
+                  }
                   return (
                     <div key={t.id} className="grid items-baseline gap-5 py-2.5" style={{ gridTemplateColumns: "100px 1fr 1.2fr 90px 110px auto" }}>
                       <Tag>{t.category}</Tag>
@@ -178,7 +237,8 @@ export default function TransactionsClient({ initialTransactions, accounts }: { 
                       <span className="font-serif text-[14px] text-ink-3 italic">{t.description}</span>
                       <span className="label-mono truncate">{acct?.name ?? ""}</span>
                       <span className="text-right font-mono text-[14px] tabular-nums"><Money value={t.amount} signed /></span>
-                      <div className="flex items-center gap-1.5 ml-auto">
+                      <div className="flex items-center gap-1.5">
+                        <button onClick={() => startEdit(t)} className="btn text-[10px]">Edit</button>
                         <button onClick={() => handleDelete(t.id)} className="btn text-[10px] text-[var(--accent)]">Delete</button>
                       </div>
                     </div>
