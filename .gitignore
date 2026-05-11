@@ -4,3 +4,7 @@ out
 .env*.local
 *.tsbuildinfo
 .env
+
+# SQLite
+*.db-wal
+*.db-shm
