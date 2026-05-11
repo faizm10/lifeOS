@@ -1,7 +1,10 @@
 import Database from "better-sqlite3";
 import path from "path";
 
-const db = new Database(path.join(process.cwd(), "auth.db"));
+const dbPath = process.env.NODE_ENV === "production"
+  ? "/data/auth.db"
+  : path.join(process.cwd(), "auth.db");
+const db = new Database(dbPath);
 db.pragma("journal_mode = WAL");
 
 db.exec(`

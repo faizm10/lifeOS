@@ -13,7 +13,7 @@ primary_region = 'yyz'
   auto_extend_size_increment = '1GB'
   auto_extend_size_limit = '10GB'
   source = "lifeos_data"
-  destination = "/app"
+  destination = "/data"
 [http_service]
   internal_port = 3000
   force_https = true
