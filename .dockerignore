@@ -1,0 +1,10 @@
+node_modules
+.next
+out
+.env*.local
+*.tsbuildinfo
+.env
+
+# SQLite
+*.db-wal
+*.db-shm
